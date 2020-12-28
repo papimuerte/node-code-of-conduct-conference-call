@@ -11,8 +11,8 @@ const organizerNumbers = process.env.NUMBERS.split(',') // replace with array of
 const nexmo = new Nexmo({ 
   apiKey: process.env.NEXMO_KEY, 
   apiSecret: process.env.NEXMO_SECRET,
-  applicationId: process.env.APPLICATION_ID,
-  privateKey: './private.key'
+  applicationId: process.env.NEXMO_APPLICATION_ID,
+  privateKey: process.env.NEXMO_PRIVATE_KEY
 })
 
 app.use(bodyParser.json())
@@ -83,4 +83,4 @@ app.post('/sms', async (req, res) => {
   res.status(200).end()
 })
 
-app.listen(3000)
+app.listen(80)
