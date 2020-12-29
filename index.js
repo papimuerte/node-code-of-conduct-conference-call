@@ -12,8 +12,10 @@ const nexmo = new Nexmo({
   apiKey: process.env.NEXMO_KEY, 
   apiSecret: process.env.NEXMO_SECRET,
   applicationId: process.env.NEXMO_APPLICATION_ID,
-  privateKey: process.env.NEXMO_PRIVATE_KEY
-})
+  signatureSecret: process.env.NEXMO_SIGNATURE_SECRET,
+  signatureMethod: process.env.NEXMO_SIGNATURE_METHOD,
+  privateKey: Buffer.from(process.env.NEXMO_PRIVATE_KEY_64, 'base64')
+}, {debug: true})
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -30,13 +32,13 @@ app.get('/answer', async (req, res) => {
       to: [{ type: 'phone', number: organizerNumber }],
       from: { type: 'phone', number: process.env.NEXMO_NUMBER },
       ncco: [
-        { action: 'conversation', name: conferenceId }
+        { action: 'conversation', name: conferenceId, machine_detection: 'hangup' }
       ]
     })
   }
 
   res.json([
-    { action: 'talk', voiceName: 'Amy', text: 'This is the Code of Conduct Incident Response Line' },
+    { action: 'talk', voiceName: 'Amy', text: 'Thank you for calling the incident response line. We\'re connecting you to an organizer now.' },
     { action: 'conversation', name: conferenceId, record: true }
   ])
 })
@@ -46,21 +48,6 @@ app.post('/event', async (req, res) => {
     await recordingsDb.insert(req.body)
   }
   res.status(200).end()
-})
-
-app.get('/', async (req, res) => {
-  const recordings = await recordingsDb.find().sort({ timestamp: -1 })
-  const messages = await messagesDb.find().sort({ 'message-timestamp': -1 })
-  res.render('index.html', { recordings, messages })
-})
-
-app.get('/details/:conversation', (req, res) => {
-  nexmo.conversations.get(req.params.conversation, async (error, result) => {
-    const caller = result.members.find(member => member.channel.from != process.env.NEXMO_NUMBER)
-    const number = caller.channel.from.number
-    const recording = await recordingsDb.findOne({ conversation_uuid: req.params.conversation })
-    res.render('detail.html', { number, recording })
-  })
 })
 
 app.post('/sms', async (req, res) => {
