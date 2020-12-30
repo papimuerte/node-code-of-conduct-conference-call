@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const nedb = require('nedb-promises')
 const Nexmo = require('nexmo')
 const nunjucks = require('nunjucks')
+const port = process.env.PORT || 80
 
 const organizerNumbers = process.env.NUMBERS.split(',') // replace with array of strings
 
@@ -70,4 +71,6 @@ app.post('/sms', async (req, res) => {
   res.status(200).end()
 })
 
-app.listen(8080)
+app.listen(port, () => {
+    console.log('Server is up on port ' + port)
+})
