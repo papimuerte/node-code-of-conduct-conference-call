@@ -71,6 +71,6 @@ app.post('/sms', async (req, res) => {
   res.status(200).end()
 })
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0"() => {
     console.log('Server is up on port ' + port)
 })
